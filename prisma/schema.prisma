@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(ulid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Media     Media[]
+}
+
+enum MediaType {
+  image
+  video
+  pdf
+}
+
+model Media {
+  id        String    @id @default(ulid())
+  type      MediaType
+  url       String
+  width     Int?
+  height    Int?
+  userId    String
+  postId    String?
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+}
