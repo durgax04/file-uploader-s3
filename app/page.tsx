@@ -2,6 +2,7 @@ import { getUserSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import LogoIcon from "@/public/logo.svg";
 
 export default async function Home() {
   const user = await getUserSession();
@@ -15,7 +16,7 @@ export default async function Home() {
       <div className="max-w-2xl text-center space-y-8 bg-white/10 p-10 rounded-2xl shadow-xl backdrop-blur-sm">
         <div className="flex justify-center">
           <Image
-            src="/assets/icons/care-1.svg" // make sure this image exists
+            src={LogoIcon} // make sure this image exists
             alt="Logo"
             width={64}
             height={64}

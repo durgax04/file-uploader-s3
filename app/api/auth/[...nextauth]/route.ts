@@ -30,9 +30,11 @@ const authOption: NextAuthOptions = {
         create: {
           email: profile.email,
           name: profile.name,
+          image: profile.image,
         },
         update: {
           name: profile.name,
+          image: profile.image
         },
       })
       return true

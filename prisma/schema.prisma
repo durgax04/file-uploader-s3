@@ -11,9 +11,11 @@ model User {
   id        String   @id @default(ulid())
   email     String   @unique
   name      String?
+  image     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Media     Media[]
+  Post      Post[]
 }
 
 enum MediaType {
@@ -32,4 +34,12 @@ model Media {
   postId    String?
   user      User      @relation(fields: [userId], references: [id])
   createdAt DateTime  @default(now())
+}
+
+model Post {
+  id        String   @id @default(ulid())
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
