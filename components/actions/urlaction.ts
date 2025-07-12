@@ -49,10 +49,10 @@ export const getSignedURL = async (type: string, size: number, checkSum: string)
     if (!acceptedTypes.includes(type)) {
       return { failure: "Invalid file type" };
     }
-
+    const fileName = generateFileName(); 
   const putObjCommand = new PutObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME!,
-    Key: generateFileName(),
+    Key: fileName,
     ContentLength: size,
     ContentType: type,
     ChecksumSHA256: checkSum,
@@ -65,33 +65,17 @@ export const getSignedURL = async (type: string, size: number, checkSum: string)
     expiresIn: 60,
   });
 
-  /*
-  // checksum  String   @unique
-  const existing = await prisma.media.findFirst({
-    where: {
-        checksum: checkSum,
-        userId: session.id, 
-    },
-    });
 
-    if (existing) {
-        return {
-            success: {
-            url: existing.url,
-            mediaId: existing.id,
-            reused: true,
-            },
-        };
-    }
-    */
+const publicUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/${fileName}`;
 
   const media = await prisma.media.create({
     data: {
         userId: session.id,
         type: getMediaType(type),
-        url: signedURL,
+        url: publicUrl,
     }
   })
+  console.log(media);
 
   return { success: { url: signedURL, mediaId: media.id } };
 };
@@ -103,33 +87,46 @@ type CreatePostProps = {
 }
 
 export const createPost = async ({ content, mediaId }: CreatePostProps) => {
-    const user = await getUserSession();
-    
-    if (!user) {
-        return { failure: "Not Authenticated" }
-    }   
+  
+  const user = await getUserSession();
+  
+  if (!user) {
+      return { failure: "Not Authenticated" }
+  }   
 
-    if (mediaId) {
-        await prisma.media.findFirst({
-            where: {
-                id: mediaId
-            }
-        });
-    } else {
-        return { failure: "Media not found" };   
+  if (!mediaId) {
+    return { failure: "Media ID is required" }
+  }
+
+  const media = await prisma.media.findUnique({
+    where: {
+      id: mediaId
     }
+  })
 
-   const post = await prisma.post.create({
-        data: {
-            content,
-            userId: user.id
+  if (!media) {
+    return { failure: "Media not found" }
+  }
+
+  const post = await prisma.post.create({
+    data: {
+      content,
+      userId: user.id,
+      media: {
+        connect: {
+          id: mediaId
         }
-   })
+      }
+    },
+    include: {
+      media: true
+    }
+  })
 
-   console.log("Post---", post);
+  console.log("Post---", post);
 
-//    revalidatePath("/posts");
-//    redirect("/posts");
+//  revalidatePath("/posts");
+  redirect("/posts");
 
 }
 

@@ -33,6 +33,7 @@ model Media {
   userId    String
   postId    String?
   user      User      @relation(fields: [userId], references: [id])
+  post      Post?     @relation(fields: [postId], references: [id])
   createdAt DateTime  @default(now())
 }
 
@@ -42,4 +43,5 @@ model Post {
   content   String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+  media     Media[]
 }

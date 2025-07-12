@@ -1,30 +1,31 @@
+
+
 import Image from "next/image";
 import Link from "next/link";
-import { Prisma, Media } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { getUserSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
-type PostWithUser = Prisma.PostGetPayload<{
-  include: { user: true };
+type PostWithUserAndMedia = Prisma.PostGetPayload<{
+  include: {
+    user: true;
+    media: true;
+  };
 }>;
 
+
 interface FeedPostProps {
-  post: PostWithUser;
-  user: {
-    id: string;
-    name?: string | null;
-    image?: string | null;
-  };
-  media: Media[]; // <-- proper typing instead of []
+  post: PostWithUserAndMedia;
 }
 
-const FeedPost = ({ post, user, media }: FeedPostProps) => {
+const FeedPost = async ({ post }: FeedPostProps) => {
 
-    if (!user) {
-       return redirect("/");
-    }
+  const user = await getUserSession();
+  if (!user) {
+    redirect("/");
+  }
 
-  const userMedia = media.find((m) => m.type === "image");
-  console.log(userMedia);
+  console.log(post.media);
 
   return (
     <article className="flex flex-col gap-4 py-4 px-4 border border-neutral-700 my-4 mx-4">
@@ -34,9 +35,8 @@ const FeedPost = ({ post, user, media }: FeedPostProps) => {
           <div className="w-10 h-10 rounded-full overflow-hidden relative">
             <Image
               src={user.image!}
-              alt={user.name || "User"}
+              alt={user.name!}
               fill
-              sizes="32"
               className="object-cover"
             />
           </div>
@@ -48,31 +48,32 @@ const FeedPost = ({ post, user, media }: FeedPostProps) => {
             <Link href={`/${post.user.id}`}>
               <p className="font-semibold">{post.user.name}</p>
             </Link>
-            <p className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</p>
+            <p className="text-xs text-gray-500">
+              {new Date(post.createdAt).toLocaleString()}
+            </p>
           </div>
 
           <p className="text-sm">{post.content}</p>
 
-          {/* Render media if any */}
-          {userMedia && (
-            <>
-              {userMedia.type === "image" && (
-                <Image
-                  src={userMedia.url}
-                  alt="Post media"
-                  width={400}
-                  height={400}
-                  className="rounded-lg object-cover"
-                />
-              )}
-              {/* {userMedia.type === "video" && (
-                <video
-                  src={userMedia.url}
-                  controls
-                  className="rounded-lg object-cover max-w-full"
-                />
-              )} */}
-            </>
+          {/* Media Display */}
+          {post.media.map((mediaItem) =>
+            mediaItem.type === "image" ? (
+              <Image
+                key={mediaItem.id}
+                src={mediaItem.url!}
+                alt="Post media"
+                width={400}
+                height={400}
+                className="rounded-lg object-cover"
+              />
+            ) : mediaItem.type === "video" ? (
+              <video
+                key={mediaItem.id}
+                src={mediaItem.url}
+                controls
+                className="rounded-lg max-w-full"
+              />
+            ) : null
           )}
         </div>
       </div>

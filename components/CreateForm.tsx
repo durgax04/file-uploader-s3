@@ -51,24 +51,29 @@ const CreateForm = ({
         );
         console.log(signedURLResult);
 
-        if (signedURLResult.failure !== undefined) {
-          setStatusMessage("Failed");
+        if (signedURLResult.failure) {
+          setStatusMessage(`Upload error: ${signedURLResult.failure}`);
           setLoading(false);
-          console.log("error during uploading");
           return;
         }
 
-        const { url, mediaId } = signedURLResult.success;
+        const { url, mediaId } = signedURLResult.success!;
         console.log("url---", { url });
         console.log("mediaId---", { mediaId });
 
-        await fetch(url, {
+        const res = await fetch(url, {
           method: "PUT",
           body: file,
           headers: {
             "Content-Type": file.type,
           },
         });
+
+        if (!res.ok) {
+          setStatusMessage("Upload to S3 failed");
+          setLoading(false);
+          return;
+        }
 
         // create post
         await createPost({ content, mediaId });
@@ -84,7 +89,9 @@ const CreateForm = ({
     await new Promise((res) => setTimeout(res, 1000));
 
     setStatusMessage("Uploaded!");
-    setLoading(false);
+    setContent("");
+    setFile(undefined);
+    setFileUrl(undefined);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -227,12 +234,9 @@ const CreateForm = ({
         </div>
       </form>
 
-
       {/* Show  */}
 
-      <div>
-        
-      </div>
+      <div></div>
     </>
   );
 };
