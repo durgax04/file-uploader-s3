@@ -17,7 +17,7 @@
     NEXTAUTH_URL="http://localhost:3000"
     AWS_BUCKET_NAME=""
     AWS_BUCKET_REGION=""
-    AWS_ACCESS_KEY=""
+    AWS_ACCESS_KEY_ID=""
     AWS_SECRET_ACCESS_KEY="" 
     DATABASE_URL=""
   ```
