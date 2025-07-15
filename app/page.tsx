@@ -2,7 +2,7 @@ import { getUserSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import LogoIcon from "@/public/logo.svg";
+import LogoIcon from "@/public/upload-icon.svg";
 
 export default async function Home() {
   const user = await getUserSession();
@@ -25,10 +25,10 @@ export default async function Home() {
         </div>
 
         <h1 className="text-4xl font-extrabold tracking-tight">
-          Welcome to <span className="text-teal-400">CareConnect</span>
+          Welcome to <span className="text-teal-400">Upload File form</span>
         </h1>
         <p className="text-lg text-gray-200">
-          A modern health CRM platform for patients and doctors. Easily manage appointments, stay connected, and more.
+          It lets you upload file(images, videos) in s3 and see those in /posts endpoint.
         </p>
 
         <Link
