@@ -4,7 +4,7 @@ import CreateForm from "@/components/CreateForm";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface DashboardProps {
   session: any;
 }
