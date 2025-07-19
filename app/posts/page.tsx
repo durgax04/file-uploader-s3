@@ -2,7 +2,15 @@ import FeedPost from "@/components/FeedPost";
 import { prisma } from "@/lib/prisma";
 import { getUserSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 
+// Define the type for post with user and media included
+type PostWithUserAndMedia = Prisma.PostGetPayload<{
+  include: {
+    user: true;
+    media: true;
+  };
+}>;
 
 const Posts = async () => {
   const user = await getUserSession();
@@ -11,7 +19,7 @@ const Posts = async () => {
     redirect("/");
   }
 
-  const posts = await prisma.post.findMany({
+  const posts: PostWithUserAndMedia[] = await prisma.post.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       user: true,
