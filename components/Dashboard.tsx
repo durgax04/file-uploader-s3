@@ -5,24 +5,21 @@ import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
-
 interface DashboardProps {
   session: {
     id: string;
-    name: string | null;
-    image: string | null; 
-    email: string | null;
+    name?: string | null;
+    image?: string | null;
+    email?: string | null;
   };
 }
 
 const Dashboard = ({ session }: DashboardProps) => {
-  console.log("session--->>", session);
-  // console.log(session.image);
   const [signingOut, setSigningOut] = useState(false);
 
   const handleSignOut = async () => {
     setSigningOut(true);
-    await signOut(); // This will redirect to signIn page by default
+    await signOut(); // This will redireect to sign-in pageeq by default
   };
 
   return (
@@ -31,7 +28,7 @@ const Dashboard = ({ session }: DashboardProps) => {
         {/* Header */}
         <div className="flex justify-between items-center border-b border-white/20 pb-4">
           <h1 className="text-4xl font-bold tracking-tight">
-            Welcome, {session.name}
+            Welcome, {session.name ?? "Guest"}
           </h1>
 
           <button
@@ -50,11 +47,11 @@ const Dashboard = ({ session }: DashboardProps) => {
           <div className="space-y-2">
             <p>
               <span className="font-semibold text-gray-300">Email:</span>{" "}
-              {session.email}
+              {session.email ?? "Not provided"}
             </p>
             <p>
               <span className="font-semibold text-gray-300">Name:</span>{" "}
-              {session.name}
+              {session.name ?? "Not provided"}
             </p>
           </div>
         </section>
