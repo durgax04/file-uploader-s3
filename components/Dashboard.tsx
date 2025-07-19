@@ -9,9 +9,9 @@ import { Loader2 } from "lucide-react";
 interface DashboardProps {
   session: {
     id: string;
-    name: string;
-    image: string;
-    email: string;
+    name: string | null;
+    image: string | null; 
+    email: string | null;
   };
 }
 
