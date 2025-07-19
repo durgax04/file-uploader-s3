@@ -1,16 +1,8 @@
-import { User, getServerSession } from 'next-auth'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const session = async ({ session, token }: any) => {
-  session.user.id = token.id
-  return session
-}
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { Session } from "next-auth";
 
-export const getUserSession = async (): Promise<User> => {
-  const authUserSession = await getServerSession({
-    callbacks: {
-      session,
-    },
-  })
-  // if (!authUserSession) throw new Error('unauthorized')
-  return authUserSession?.user
-}
+export const getUserSession = async (): Promise<Session["user"] | undefined> => {
+  const authUserSession = await getServerSession(authOptions);
+  return authUserSession?.user;
+};

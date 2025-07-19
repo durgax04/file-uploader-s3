@@ -1,32 +1,25 @@
-import { prisma } from '@/lib/prisma'
-import { NextAuthOptions } from 'next-auth'
-import { session } from '@/lib/session';
-import NextAuth from 'next-auth/next'
-import GoogleProvider from 'next-auth/providers/google'
+import NextAuth, { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import { prisma } from "@/lib/prisma";
+import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!
-
-const authOption: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   providers: [
     GoogleProvider({
-      clientId: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   callbacks: {
     async signIn({ profile }) {
-      if (!profile?.email) {
-        throw new Error('No profile')
-      }
+      if (!profile?.email) throw new Error("No email found in profile");
 
       await prisma.user.upsert({
-        where: {
-          email: profile.email,
-        },
+        where: { email: profile.email },
         create: {
           email: profile.email,
           name: profile.name,
@@ -34,28 +27,35 @@ const authOption: NextAuthOptions = {
         },
         update: {
           name: profile.name,
-          image: profile.image
+          image: profile.image,
         },
-      })
-      return true
+      });
+
+      return true;
     },
-    session,
     async jwt({ token, profile }) {
-      if (profile) {
+      if (profile?.email) {
         const user = await prisma.user.findUnique({
-          where: {
-            email: profile.email,
-          },
-        })
-        if (!user) {
-          throw new Error('No user found')
-        }
-        token.id = user.id
+          where: { email: profile.email },
+        });
+        if (user) token.id = user.id;
       }
-      return token
+      return token;
+    },
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT;
+    }): Promise<Session> {
+      if (session.user && token.id) {
+        session.user.id = token.id as string;
+      }
+      return session;
     },
   },
-}
+};
 
-const handler = NextAuth(authOption)
-export { handler as GET, handler as POST }
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

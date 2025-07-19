@@ -4,13 +4,19 @@ import CreateForm from "@/components/CreateForm";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+
 interface DashboardProps {
-  session: any;
+  session: {
+    id: string;
+    name: string;
+    image: string;
+    email: string;
+  };
 }
 
 const Dashboard = ({ session }: DashboardProps) => {
-  // console.log(session);
+  console.log("session--->>", session);
   // console.log(session.image);
   const [signingOut, setSigningOut] = useState(false);
 
