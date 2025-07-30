@@ -19,6 +19,7 @@ const Posts = async () => {
     redirect("/");
   }
 
+
   const posts: PostWithUserAndMedia[] = await prisma.post.findMany({
     orderBy: { createdAt: "desc" },
     include: {
@@ -28,9 +29,9 @@ const Posts = async () => {
   });
 
   return (
-    <div className="flex flex-col divide-y">
+    <div className="flex flex-col h-screen justify-center items-center divide-y">
       {posts.map((post) => (
-        <FeedPost key={post.id} post={post} />
+        <FeedPost key={post.id} post={post} currUser={user} currUserImage={user.image!}/>
       ))}
     </div>
   );

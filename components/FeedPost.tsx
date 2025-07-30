@@ -1,8 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Prisma } from "@prisma/client";
-import { getUserSession } from "@/lib/session";
-import { redirect } from "next/navigation";
+import { Trash } from "lucide-react";
 
 type PostWithUserAndMedia = Prisma.PostGetPayload<{
   include: {
@@ -14,26 +13,25 @@ type PostWithUserAndMedia = Prisma.PostGetPayload<{
 
 interface FeedPostProps {
   post: PostWithUserAndMedia;
+  currUser: {};
+  currUserImage: string;
 }
 
-const FeedPost = async ({ post }: FeedPostProps) => {
+const FeedPost = async ({ post, currUser, currUserImage }: FeedPostProps) => {
 
-  const user = await getUserSession();
-  if (!user) {
-    redirect("/");
-  }
+  console.log("User---->>>", currUser);
 
-  console.log(post.media);
 
+/**/
   return (
-    <article className="flex flex-col gap-4 py-4 px-4 border border-neutral-700 my-4 mx-4">
+    <article className="flex flex-col w-[400px] md:w-[600px] gap-4 py-4 px-4 border border-neutral-700 my-4 mx-4">
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <Link href={`/${post.user.id}`}>
           <div className="w-10 h-10 rounded-full overflow-hidden relative">
             <Image
-              src={user.image!}
-              alt={user.name!}
+              src={currUserImage}
+              alt={post.user.name!}
               fill
               className="object-cover"
             />
@@ -42,7 +40,7 @@ const FeedPost = async ({ post }: FeedPostProps) => {
 
         {/* Post Content */}
         <div className="flex flex-col gap-1 w-full">
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <Link href={`/${post.user.id}`}>
               <p className="font-semibold">{post.user.name}</p>
             </Link>
@@ -73,6 +71,12 @@ const FeedPost = async ({ post }: FeedPostProps) => {
               />
             ) : null
           )}
+          
+          <div>
+            <button>
+              <Trash size={24} color="red"/>
+            </button>
+          </div>
         </div>
       </div>
     </article>
