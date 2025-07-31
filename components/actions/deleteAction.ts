@@ -1,8 +1,8 @@
 "use server";
 
+import { prisma } from "@/lib/prisma";
+import { getUserSession } from "@/lib/session";
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { prisma } from "./prisma";
-import { getUserSession } from "./session";
 
 const s3Client = new S3Client({
     region: process.env.AWS_BUCKET_REGION!,

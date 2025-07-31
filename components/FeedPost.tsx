@@ -1,7 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Prisma } from "@prisma/client";
 import { Trash } from "lucide-react";
+import { deletePost } from "./actions/deleteAction";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type PostWithUserAndMedia = Prisma.PostGetPayload<{
   include: {
@@ -13,18 +18,32 @@ type PostWithUserAndMedia = Prisma.PostGetPayload<{
 
 interface FeedPostProps {
   post: PostWithUserAndMedia;
-  currUser: {};
+  currUser?: {};
   currUserImage: string;
 }
 
-const FeedPost = async ({ post, currUser, currUserImage }: FeedPostProps) => {
+const FeedPost = ({ post, currUserImage }: FeedPostProps) => {
 
-  console.log("User---->>>", currUser);
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm("Are you sure you want to delete this post.")
+
+    if (!confirmed) return;
+
+    try {
+      await deletePost(post.id);
+      router.refresh();
+    } catch (error) {
+      toast.error("Failed to delete post.");
+      console.error(error);
+    }
+  }
 
 
 /**/
   return (
-    <article className="flex flex-col w-[400px] md:w-[600px] gap-4 py-4 px-4 border border-neutral-700 my-4 mx-4">
+    <article className="flex flex-col w-[400px] md:w-[550px] gap-4 py-4 px-4 border border-neutral-700 my-4 mx-4">
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <Link href={`/${post.user.id}`}>
@@ -70,13 +89,14 @@ const FeedPost = async ({ post, currUser, currUserImage }: FeedPostProps) => {
                 className="rounded-lg max-w-full"
               />
             ) : null
-          )}
+          )}  
           
-          <div>
-            <button>
-              <Trash size={24} color="red"/>
-            </button>
-          </div>
+          {/* Delete Button */}
+            <div className="mt-2">
+              <button onClick={handleDelete} className="">
+                <Trash size={24} color="red"/>
+              </button>
+            </div>
         </div>
       </div>
     </article>

@@ -29,7 +29,7 @@ const Posts = async () => {
   });
 
   return (
-    <div className="flex flex-col h-screen justify-center items-center divide-y">
+    <div className="flex flex-col justify-center items-center divide-y">
       {posts.map((post) => (
         <FeedPost key={post.id} post={post} currUser={user} currUserImage={user.image!}/>
       ))}
