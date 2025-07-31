@@ -18,7 +18,6 @@ type PostWithUserAndMedia = Prisma.PostGetPayload<{
 
 interface FeedPostProps {
   post: PostWithUserAndMedia;
-  currUser?: {};
   currUserImage: string;
 }
 
@@ -33,6 +32,7 @@ const FeedPost = ({ post, currUserImage }: FeedPostProps) => {
 
     try {
       await deletePost(post.id);
+      toast.message("Post successfully deleted");
       router.refresh();
     } catch (error) {
       toast.error("Failed to delete post.");
