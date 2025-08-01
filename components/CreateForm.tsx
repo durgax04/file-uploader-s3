@@ -200,10 +200,10 @@ const CreateForm = ({
                   className="fill-current"
                 ></path>
               </svg>
-              <span>Attach File (pdf, jpeg, png, mp4)</span>
+              <span>Attach File (jpeg, png, mp4, webm)</span>
               <input
                 type="file"
-                accept=".pdf,image/jpeg,image/png,video/mp4,video/quicktime"
+                accept=".pdf,image/jpeg,image/png,video/mp4,video/webm,video/quicktime"
                 className="hidden"
                 onChange={handleChange}
               />

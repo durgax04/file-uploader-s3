@@ -20,6 +20,7 @@ const acceptedTypes = [
   "image/jpeg",            // JPG / JPEG
   "image/png",             // PNG
   "video/mp4",             // MP4
+  "video/webm",            // webm
   "video/quicktime"        // MOV (QuickTime)
 ];
 const maxFileSize = 1024 * 1024 * 14; // 14.3MB

@@ -4,6 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
 
+interface GoogleProfile {
+  sub: string;
+  name: string;
+  email: string;
+  picture: string;
+}
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -12,27 +19,38 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+        };
+      },
     }),
   ],
   callbacks: {
     async signIn({ profile }) {
       if (!profile?.email) throw new Error("No email found in profile");
 
+      const googleProfile = profile as GoogleProfile;
+
       await prisma.user.upsert({
-        where: { email: profile.email },
+        where: { email: googleProfile.email },
         create: {
-          email: profile.email,
-          name: profile.name,
-          image: profile.image,
+          email: googleProfile.email,
+          name: googleProfile.name,
+          image: googleProfile.picture,
         },
         update: {
-          name: profile.name,
-          image: profile.image,
+          name: googleProfile.name,
+          image: googleProfile.picture,
         },
       });
 
       return true;
     },
+
     async jwt({ token, profile }) {
       if (profile?.email) {
         const user = await prisma.user.findUnique({
@@ -42,6 +60,7 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
+
     async session({
       session,
       token,

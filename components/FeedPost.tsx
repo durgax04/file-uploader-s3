@@ -3,10 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Prisma } from "@prisma/client";
-import { Trash } from "lucide-react";
+import { Loader2, Trash } from "lucide-react";
 import { deletePost } from "./actions/deleteAction";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
 
 type PostWithUserAndMedia = Prisma.PostGetPayload<{
   include: {
@@ -15,20 +17,23 @@ type PostWithUserAndMedia = Prisma.PostGetPayload<{
   };
 }>;
 
-
 interface FeedPostProps {
   post: PostWithUserAndMedia;
-  currUserImage: string;
 }
 
-const FeedPost = ({ post, currUserImage }: FeedPostProps) => {
+const FeedPost = ({ post }: FeedPostProps) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { data: session } = useSession();
+
+  console.log("Post user image--->>", post.user.image);
 
   const router = useRouter();
 
   const handleDelete = async () => {
-    const confirmed = window.confirm("Are you sure you want to delete this post.")
+    setIsDeleting(true);
+    // const confirmed = window.confirm("Are you sure you want to delete this post.")
 
-    if (!confirmed) return;
+    // if (!confirmed) return;
 
     try {
       await deletePost(post.id);
@@ -37,11 +42,15 @@ const FeedPost = ({ post, currUserImage }: FeedPostProps) => {
     } catch (error) {
       toast.error("Failed to delete post.");
       console.error(error);
+    } finally {
+      setIsDeleting(false);
     }
-  }
+  };
 
+  // check owner to delete post
+  const isOwner = session?.user?.id === post.user.id;
 
-/**/
+  /**/
   return (
     <article className="flex flex-col w-[400px] md:w-[550px] gap-4 py-4 px-4 border border-neutral-700 my-4 mx-4">
       <div className="flex items-start gap-4">
@@ -49,7 +58,7 @@ const FeedPost = ({ post, currUserImage }: FeedPostProps) => {
         <Link href={`/${post.user.id}`}>
           <div className="w-10 h-10 rounded-full overflow-hidden relative">
             <Image
-              src={currUserImage}
+              src={post.user.image!}
               alt={post.user.name!}
               fill
               className="object-cover"
@@ -89,14 +98,29 @@ const FeedPost = ({ post, currUserImage }: FeedPostProps) => {
                 className="rounded-lg max-w-full"
               />
             ) : null
-          )}  
-          
+          )}
+
           {/* Delete Button */}
+          {isOwner && (
             <div className="mt-2">
-              <button onClick={handleDelete} className="">
-                <Trash size={24} color="red"/>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className={`text-gray-400 hover:text-gray-500 transition ${
+                  isDeleting ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {isDeleting ? (
+                  <span className="text-sm animate-pulse flex items-center">
+                    Deleting...
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </span>
+                ) : (
+                  <Trash size={24} />
+                )}
               </button>
             </div>
+          )}
         </div>
       </div>
     </article>
