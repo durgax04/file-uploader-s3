@@ -1,4 +1,3 @@
-// app/dashboard/page.tsx
 import { redirect } from "next/navigation";
 import Dashboard from "@/components/Dashboard";
 import { getUserSession } from "@/lib/session";
